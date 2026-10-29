@@ -77,11 +77,33 @@ refresh only the names.
 ```
 src/engine/     rules engine, scoring, cleanup, monsters, compare (+ __tests__)
 src/store/      IndexedDB access and the Zustand app store
-src/features/   import, dashboard, runes, cleanup, monsters, compare, rules
+src/features/   import, dashboard, runes, cleanup, monsters, compare, optimizer, rules
 src/data/       monsters.json (generated)
 scripts/        fetch-monsters, verdict.py comparison tools
 reference/      verdict.py, load.py and the SW Forge guide this is based on
 ```
+
+## Rune optimizer
+
+Pick a monster on the **Optimizer** page, set a min, max and/or weight for each of HP, ATK, DEF, SPD,
+CRate, CDmg, RES and ACC, optionally require sets, restrict the slot 2/4/6 main stats, keep or exclude
+runes and allow runes from other monsters. It returns the five best six-rune builds, ranked by the
+weighted stat total, with a stat table against what the monster wears now.
+
+`src/engine/optimizer/` is pure TypeScript with Vitest tests:
+
+- `computeBuild` / `bestBuild` total a monster's stats: base (read from the export at the monster's
+  current level and stars) + rune main, innate and sub stats (incl. grinds) + set bonuses + Sky Tribe Totem.
+  HP/ATK/DEF percent bonuses are rounded up and SPD bonuses down, so totals can be off by 1.
+- `optimize` is an exact branch and bound search. It first picks which sets to complete (up to three
+  groups that fit in six slots), then searches the runes with bounds that use that plan's set bonus, so
+  a required-set search takes tens of milliseconds and a fully open one a few seconds. If the node
+  budget (40M) runs out or a slot has more than 250 candidates after dropping dominated runes, the UI
+  says the search was cut short. It runs in a Web Worker (`features/optimizer`).
+- Intangible counts as one piece of any one set, once per build. Immemorial (id 99) is treated as a
+  plain 2-piece set with no stat bonus because its effect is unconfirmed.
+
+Not counted: artifacts, leader skills, guild and tower bonuses, and ally-wide set effects from teammates.
 
 ## Known gaps
 
