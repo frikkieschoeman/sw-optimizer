@@ -4,7 +4,7 @@ import { useAppStore } from '../../store/useAppStore'
 const STRICT_LABEL = ['', 'Very forgiving', 'Relaxed', 'Balanced', 'Strict', 'Very strict']
 
 export function Controls() {
-  const { stage, strictness, setStage, setStrictness } = useAppStore()
+  const { stage, strictness, customRules, setStage, setStrictness } = useAppStore()
   return (
     <div className="flex flex-wrap items-center gap-6 rounded-xl bg-slate-900 p-4">
       <div>
@@ -26,6 +26,11 @@ export function Controls() {
         <input type="range" min={1} max={5} step={1} value={strictness} className="w-full accent-emerald-500"
           onChange={(e) => setStrictness(Number(e.target.value) as Strictness)} />
       </label>
+      {customRules && (
+        <p className="w-full text-xs text-amber-300">
+          Custom rules from the Rules page are active. Changing Stage or Strictness switches back to a preset.
+        </p>
+      )}
     </div>
   )
 }

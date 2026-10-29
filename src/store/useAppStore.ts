@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import {
-  analyze, buildRules, parseSwex, type Account, type Analysis, type Stage, type Strictness,
+  analyze, buildRules, parseSwex, type Account, type Analysis, type RulesConfig, type Stage, type Strictness,
 } from '../engine'
-import { DEFAULT_SETTINGS, loadDone, loadExport, loadSettings, saveDone, saveExport, saveSettings } from './db'
+import { DEFAULT_SETTINGS, clearRules, loadDone, loadRules, saveRules, loadExport, loadSettings, saveDone, saveExport, saveSettings } from './db'
 
 interface AppState {
   ready: boolean
@@ -20,10 +20,18 @@ interface AppState {
   setStage: (s: Stage) => void
   setStrictness: (s: Strictness) => void
   setTotem: (pct: number) => void
+  /** Custom rules from the Rules page; null means the Stage/Strictness preset is used. */
+  customRules: RulesConfig | null
+  saveCustomRules: (rules: RulesConfig) => void
+  /** Factory reset: drop custom rules and go back to Mid / Strictness 4. */
+  resetRules: () => void
 }
 
-function compute(account: Account | null, stage: Stage, strictness: Strictness) {
-  return account ? analyze(account, buildRules(stage, strictness)) : null
+export const effectiveRules = (s: Pick<AppState, 'stage' | 'strictness' | 'customRules'>) =>
+  s.customRules ?? buildRules(s.stage, s.strictness)
+
+function compute(account: Account | null, rules: RulesConfig) {
+  return account ? analyze(account, rules) : null
 }
 
 export const useAppStore = create<AppState>((set, get) => {
@@ -38,6 +46,7 @@ export const useAppStore = create<AppState>((set, get) => {
     ...DEFAULT_SETTINGS,
     error: null,
     done: new Set<number>(),
+    customRules: null,
 
     setDone(ids, checked) {
       const next = new Set(get().done)
@@ -55,15 +64,16 @@ export const useAppStore = create<AppState>((set, get) => {
         try { account = parseSwex(JSON.parse(text)) } catch { /* corrupt save: start empty */ }
       }
       const done = account ? new Set((await loadDone(account.wizardId)) ?? []) : new Set<number>()
-      set({ ...settings, account, done, analysis: compute(account, settings.stage, settings.strictness), ready: true })
+      const customRules = (await loadRules()) ?? null
+      const rules = customRules ?? buildRules(settings.stage, settings.strictness)
+      set({ ...settings, account, done, customRules, analysis: compute(account, rules), ready: true })
     },
 
     async importText(text) {
       try {
         const account = parseSwex(JSON.parse(text))
-        const { stage, strictness } = get()
         const done = new Set((await loadDone(account.wizardId)) ?? [])
-        set({ account, done, analysis: compute(account, stage, strictness), error: null })
+        set({ account, done, analysis: compute(account, effectiveRules(get())), error: null })
         await saveExport(1, text)
       } catch (e) {
         set({ error: e instanceof Error ? e.message : 'Could not read that file' })
@@ -71,7 +81,9 @@ export const useAppStore = create<AppState>((set, get) => {
     },
 
     setStage(stage) {
-      set({ stage, analysis: compute(get().account, stage, get().strictness) })
+      set({ stage, customRules: null })
+      void clearRules()
+      set({ analysis: compute(get().account, effectiveRules(get())) })
       persist()
     },
     setTotem(pct) {
@@ -79,7 +91,19 @@ export const useAppStore = create<AppState>((set, get) => {
       persist()
     },
     setStrictness(strictness) {
-      set({ strictness, analysis: compute(get().account, get().stage, strictness) })
+      set({ strictness, customRules: null })
+      void clearRules()
+      set({ analysis: compute(get().account, effectiveRules(get())) })
+      persist()
+    },
+    saveCustomRules(rules) {
+      set({ customRules: rules, analysis: compute(get().account, rules) })
+      void saveRules(rules)
+    },
+    resetRules() {
+      set({ customRules: null, stage: DEFAULT_SETTINGS.stage, strictness: DEFAULT_SETTINGS.strictness })
+      void clearRules()
+      set({ analysis: compute(get().account, effectiveRules(get())) })
       persist()
     },
   }
