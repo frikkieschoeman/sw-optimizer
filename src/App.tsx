@@ -4,6 +4,7 @@ import { Dashboard } from './features/dashboard/Dashboard'
 import { RuneTable } from './features/runes/RuneTable'
 import { Cleanup } from './features/cleanup/Cleanup'
 import { Monsters } from './features/monsters/Monsters'
+import { Optimizer } from './features/optimizer/Optimizer'
 import { Compare } from './features/compare/Compare'
 import { Rules } from './features/rules/Rules'
 import { Importer } from './features/import/Importer'
@@ -11,7 +12,7 @@ import { useAppStore } from './store/useAppStore'
 
 const NAV = [
   ['/', 'Dashboard'], ['/runes', 'Runes'], ['/cleanup', 'Cleanup'],
-  ['/monsters', 'Monsters'], ['/compare', 'Compare'], ['/rules', 'Rules'],
+  ['/monsters', 'Monsters'], ['/optimizer', 'Optimizer'], ['/compare', 'Compare'], ['/rules', 'Rules'],
 ] as const
 
 
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/runes" element={<RuneTable />} />
             <Route path="/cleanup" element={<Cleanup />} />
             <Route path="/monsters" element={<Monsters />} />
+            <Route path="/optimizer" element={<Optimizer />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/rules" element={<Rules />} />
             <Route path="*" element={<Navigate to="/" />} />

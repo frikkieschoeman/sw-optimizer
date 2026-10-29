@@ -17,6 +17,7 @@ export * from './aggregate'
 export * from './cleanup'
 export * from './monsters'
 export * from './compare'
+export * from './optimizer'
 
 /** Judge every rune and compute the account progression score. */
 export function analyze(account: Account, rules: RulesConfig = buildRules('Mid', 4)): Analysis {
