@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "fetch-monsters": "tsx scripts/fetch-monsters.ts"
   },
   "dependencies": {
     "@tanstack/react-table": "^9.3.1",

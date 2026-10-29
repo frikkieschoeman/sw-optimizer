@@ -12,6 +12,7 @@ export { DEFAULT_RULES } from './rules/defaults'
 export { buildRules } from './rules/presets'
 export type { RulesConfig } from './rules/types'
 export { stageFor } from './progression'
+export * from './aggregate'
 
 /** Judge every rune and compute the account progression score. */
 export function analyze(account: Account, rules: RulesConfig = buildRules('Mid', 4)): Analysis {
