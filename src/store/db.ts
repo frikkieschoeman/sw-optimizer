@@ -27,3 +27,8 @@ export const clearExport = (slot: number) => safe(() => del(exportKey(slot)), un
 export const saveSettings = (s: Settings) => safe(() => set('settings', s), undefined)
 export const loadSettings = async (): Promise<Settings> =>
   ({ ...DEFAULT_SETTINGS, ...(await safe(() => get<Settings>('settings'), undefined)) })
+
+/** Walk-through checkboxes: rune ids ticked off, per game account. */
+const doneKey = (wizardId: number) => `cleanup-done:${wizardId}`
+export const saveDone = (wizardId: number, ids: number[]) => safe(() => set(doneKey(wizardId), ids), undefined)
+export const loadDone = (wizardId: number) => safe(() => get<number[]>(doneKey(wizardId)), undefined)

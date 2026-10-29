@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { HashRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { Dashboard } from './features/dashboard/Dashboard'
 import { RuneTable } from './features/runes/RuneTable'
+import { Cleanup } from './features/cleanup/Cleanup'
 import { Importer } from './features/import/Importer'
 import { useAppStore } from './store/useAppStore'
 
@@ -42,7 +43,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/runes" element={<RuneTable />} />
-            <Route path="/cleanup" element={<Soon name="The cleanup walk-through" />} />
+            <Route path="/cleanup" element={<Cleanup />} />
             <Route path="/monsters" element={<Soon name="Monsters" />} />
             <Route path="/compare" element={<Soon name="Compare" />} />
             <Route path="/rules" element={<Soon name="Rules" />} />
