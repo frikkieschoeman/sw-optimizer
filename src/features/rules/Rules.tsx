@@ -93,6 +93,33 @@ export function Rules() {
         </table>
       </Section>
 
+      <Section title="Forge Score" hint="Weights for the 0-100 Forge Score. Tiers and multipliers come from the SW Forge guide; sub weight and the flat even-slot main are not in the guide, so tune them against scores you see in SW Forge. Saved with the rest and kept when you change Stage or Strictness.">
+        <div className="grid gap-x-8 gap-y-2 md:grid-cols-2">
+          <Num label="Sub weight (1 = literal guide)" step={0.05} value={draft.forge.subWeight} onChange={(n) => edit((d) => { d.forge.subWeight = n })} />
+          <Num label="Score divisor" value={draft.forge.divisor} onChange={(n) => edit((d) => { d.forge.divisor = n })} />
+          <Num label="Roll quality cap" step={0.01} value={draft.forge.qualityCap} onChange={(n) => edit((d) => { d.forge.qualityCap = n })} />
+          <Num label="Innate multiplier" step={0.01} value={draft.forge.innateMul} onChange={(n) => edit((d) => { d.forge.innateMul = n })} />
+          <Num label="Flat main, odd slots" value={draft.forge.flatOddMain} onChange={(n) => edit((d) => { d.forge.flatOddMain = n })} />
+          <Num label="Flat main, even slots" value={draft.forge.flatEvenMain} onChange={(n) => edit((d) => { d.forge.flatEvenMain = n })} />
+          <Num label="Flat subs on even slots" step={0.01} value={draft.forge.evenFlatSubMul} onChange={(n) => edit((d) => { d.forge.evenFlatSubMul = n })} />
+          <Num label="Unlisted main/sub pair, even slots" step={0.01} value={draft.forge.unlistedEvenSyn} onChange={(n) => edit((d) => { d.forge.unlistedEvenSyn = n })} />
+          <Num label="Duplicate stat penalty (each)" step={0.01} value={draft.forge.dupPenalty} onChange={(n) => edit((d) => { d.forge.dupPenalty = n })} />
+          <Num label="Golden triplet multiplier" step={0.01} value={draft.forge.goldenMul} onChange={(n) => edit((d) => { d.forge.goldenMul = n })} />
+        </div>
+        <table className="mt-3 text-sm">
+          <thead className="text-xs text-slate-400"><tr><th /><th className="px-2 font-normal">Main tier</th><th className="px-2 font-normal">Sub tier</th></tr></thead>
+          <tbody>
+            {STATS.map((s) => (
+              <tr key={s}>
+                <td className="pr-3">{s}</td>
+                <td className="p-1">{PCT_STATS.includes(s) && <input type="number" className={input} value={draft.forge.mainTier[s] ?? 70} onChange={(e) => edit((d) => { d.forge.mainTier[s] = Number(e.target.value) })} />}</td>
+                <td className="p-1"><input type="number" className={input} value={draft.forge.subTier[s]} onChange={(e) => edit((d) => { d.forge.subTier[s] = Number(e.target.value) })} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Section>
+
       <Section title="Duo rolls" hint="Two stats that are strong together: both minimums must be met.">
         <div className="space-y-1">
           {draft.duos.map(([a, b, x, y], i) => (

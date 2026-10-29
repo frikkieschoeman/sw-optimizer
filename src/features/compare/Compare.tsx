@@ -69,7 +69,7 @@ function Slot({ side, snap, name, onText }: { side: Side; snap?: Snapshot; name?
 }
 
 export function Compare() {
-  const { stage, strictness, customRules } = useAppStore()
+  const { stage, strictness, customRules, forgeWeights } = useAppStore()
   const [raw, setRaw] = useState<Partial<Record<Side, { account: ReturnType<typeof parseSwex>; name?: string }>>>({})
   const [error, setError] = useState<string | null>(null)
 
@@ -94,13 +94,13 @@ export function Compare() {
 
   // both sides are judged with the same Stage and Strictness
   const snaps = useMemo(() => {
-    const rules = effectiveRules({ stage, strictness, customRules })
+    const rules = effectiveRules({ stage, strictness, customRules, forgeWeights })
     const make = (side: Side): Snapshot | undefined => {
       const a = raw[side]?.account
       return a ? { account: a, analysis: analyze(a, rules) } : undefined
     }
     return { before: make('before'), after: make('after') }
-  }, [raw, stage, strictness, customRules])
+  }, [raw, stage, strictness, customRules, forgeWeights])
 
   const cmp = useMemo(
     () => (snaps.before && snaps.after ? compareSnapshots(snaps.before, snaps.after) : null),

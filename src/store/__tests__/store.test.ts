@@ -49,3 +49,20 @@ describe('app store rules', () => {
     expect(verdict()).toBe('Keep')
   })
 })
+
+describe('forge weights', () => {
+  it('survive Stage/Strictness changes and feed the analysis', async () => {
+    const score = () => useAppStore.getState().analysis!.results.get(good.id)!.forgeScore
+    const before = score()
+    const rules = structuredClone(DEFAULT_RULES)
+    rules.forge.subWeight = 0.5
+    useAppStore.getState().saveCustomRules(rules)
+    const lowered = score()
+    expect(lowered).toBeLessThan(before)
+    useAppStore.getState().setStrictness(5)
+    expect(useAppStore.getState().customRules).toBeNull()
+    expect(score()).toBeLessThan(before)
+    useAppStore.getState().resetRules()
+    expect(score()).toBe(before)
+  })
+})

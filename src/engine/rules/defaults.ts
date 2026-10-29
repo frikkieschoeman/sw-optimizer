@@ -1,4 +1,23 @@
-import type { RulesConfig } from './types'
+import type { ForgeWeights, RulesConfig } from './types'
+
+/** Tiers and multipliers from the guide; see forgeScore.ts for the readings. */
+export const DEFAULT_FORGE: ForgeWeights = {
+  mainTier: { SPD: 100, CDmg: 93, 'ATK%': 91, CRate: 89, ACC: 80, 'HP%': 76, 'DEF%': 73, RES: 71 },
+  flatOddMain: 72,
+  flatEvenMain: 30,
+  subTier: {
+    SPD: 100, CRate: 95, CDmg: 93, 'ATK%': 90, ACC: 84, 'HP%': 78, 'DEF%': 74,
+    RES: 72, ATK: 62, DEF: 60, HP: 58,
+  },
+  subWeight: 1,
+  qualityCap: 1.12,
+  innateMul: 0.38,
+  evenFlatSubMul: 0.88,
+  unlistedEvenSyn: 0.94,
+  dupPenalty: 0.88,
+  goldenMul: 1.04,
+  divisor: 295,
+}
 
 /** Mirrors reference/verdict.py: Mid stage, Strictness 4. */
 export const DEFAULT_RULES: RulesConfig = {
@@ -60,4 +79,5 @@ export const DEFAULT_RULES: RulesConfig = {
     legendOnly: true,
   },
   gem: { enabled: true },
+  forge: DEFAULT_FORGE,
 }

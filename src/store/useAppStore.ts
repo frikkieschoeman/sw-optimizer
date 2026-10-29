@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import {
-  analyze, buildRules, parseSwex, type Account, type Analysis, type RulesConfig, type Stage, type Strictness,
+  DEFAULT_FORGE, analyze, buildRules, parseSwex, type Account, type Analysis, type ForgeWeights, type RulesConfig,
+  type Stage, type Strictness,
 } from '../engine'
-import { DEFAULT_SETTINGS, clearRules, loadDone, loadRules, saveRules, loadExport, loadSettings, saveDone, saveExport, saveSettings } from './db'
+import { DEFAULT_SETTINGS, clearForge, clearRules, loadDone, loadForge, loadRules, saveForge, saveRules, loadExport, loadSettings, saveDone, saveExport, saveSettings } from './db'
 
 interface AppState {
   ready: boolean
@@ -23,12 +24,22 @@ interface AppState {
   /** Custom rules from the Rules page; null means the Stage/Strictness preset is used. */
   customRules: RulesConfig | null
   saveCustomRules: (rules: RulesConfig) => void
-  /** Factory reset: drop custom rules and go back to Mid / Strictness 4. */
+  /** Forge Score weights from the Rules page; null means DEFAULT_FORGE. Kept across Stage/Strictness changes. */
+  forgeWeights: ForgeWeights | null
+  /** Factory reset: drop custom rules and Forge weights, go back to Mid / Strictness 4. */
   resetRules: () => void
 }
 
-export const effectiveRules = (s: Pick<AppState, 'stage' | 'strictness' | 'customRules'>) =>
-  s.customRules ?? buildRules(s.stage, s.strictness)
+export const effectiveRules = (
+  s: Pick<AppState, 'stage' | 'strictness' | 'customRules' | 'forgeWeights'>,
+): RulesConfig => ({
+  ...(s.customRules ?? buildRules(s.stage, s.strictness)),
+  forge: s.forgeWeights ?? DEFAULT_FORGE,
+})
+
+/** Saved weights may predate a field: fill gaps from the defaults. */
+const withForgeDefaults = (w: Partial<ForgeWeights> | undefined): ForgeWeights | null =>
+  w ? { ...DEFAULT_FORGE, ...w, mainTier: { ...DEFAULT_FORGE.mainTier, ...w.mainTier }, subTier: { ...DEFAULT_FORGE.subTier, ...w.subTier } } : null
 
 function compute(account: Account | null, rules: RulesConfig) {
   return account ? analyze(account, rules) : null
@@ -47,6 +58,7 @@ export const useAppStore = create<AppState>((set, get) => {
     error: null,
     done: new Set<number>(),
     customRules: null,
+    forgeWeights: null,
 
     setDone(ids, checked) {
       const next = new Set(get().done)
@@ -65,8 +77,9 @@ export const useAppStore = create<AppState>((set, get) => {
       }
       const done = account ? new Set((await loadDone(account.wizardId)) ?? []) : new Set<number>()
       const customRules = (await loadRules()) ?? null
-      const rules = customRules ?? buildRules(settings.stage, settings.strictness)
-      set({ ...settings, account, done, customRules, analysis: compute(account, rules), ready: true })
+      const forgeWeights = withForgeDefaults(await loadForge())
+      const rules = effectiveRules({ ...settings, customRules, forgeWeights })
+      set({ ...settings, account, done, customRules, forgeWeights, analysis: compute(account, rules), ready: true })
     },
 
     async importText(text) {
@@ -97,12 +110,15 @@ export const useAppStore = create<AppState>((set, get) => {
       persist()
     },
     saveCustomRules(rules) {
-      set({ customRules: rules, analysis: compute(get().account, rules) })
+      set({ customRules: rules, forgeWeights: rules.forge })
+      set({ analysis: compute(get().account, effectiveRules(get())) })
       void saveRules(rules)
+      void saveForge(rules.forge)
     },
     resetRules() {
-      set({ customRules: null, stage: DEFAULT_SETTINGS.stage, strictness: DEFAULT_SETTINGS.strictness })
+      set({ customRules: null, forgeWeights: null, stage: DEFAULT_SETTINGS.stage, strictness: DEFAULT_SETTINGS.strictness })
       void clearRules()
+      void clearForge()
       set({ analysis: compute(get().account, effectiveRules(get())) })
       persist()
     },

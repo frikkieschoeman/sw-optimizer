@@ -70,7 +70,11 @@ const columns = helper.columns([
   }),
   helper.accessor((r) => r.res.spd, { id: 'spd', header: 'SPD' }),
   helper.accessor((r) => r.res.efficiency, { id: 'eff', header: 'Eff %', cell: (c) => c.getValue().toFixed(1) }),
-  helper.accessor((r) => r.res.forgeScore, { id: 'forge', header: 'Forge' }),
+  helper.accessor((r) => r.res.forgeScore, {
+    id: 'forge', header: 'Forge',
+    // chip colours from the guide: 88+ high, 72+ mid
+    cell: (c) => <span className={c.getValue() >= 88 ? 'text-emerald-300' : c.getValue() >= 72 ? 'text-amber-200' : 'text-slate-400'}>{c.getValue()}</span>,
+  }),
   helper.accessor((r) => r.location, {
     id: 'location', header: 'Location',
     cell: (c) => <span className={c.getValue() === 'Inventory' ? 'text-slate-400' : ''}>{c.getValue()}{c.row.original.rune.locked && ' 🔒'}</span>,
