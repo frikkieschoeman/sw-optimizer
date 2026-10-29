@@ -10,7 +10,9 @@ import monsters from '../../data/monsters.json'
 type ColorBy = 'verdict' | 'efficiency'
 type SortBy = 'replace' | 'eff' | 'spd' | 'name'
 
-const IMG = 'https://swarfarm.com/static/herders/images/monsters/'
+const REMOTE_IMG = 'https://swarfarm.com/static/herders/images/monsters/'
+/** Bundled 64px icons (npm run fetch-monsters); the SWARFARM original is the fallback when one is missing. */
+const localIcon = (image: string) => `${import.meta.env.BASE_URL}monsters/${image.replace(/\.png$/, '.webp')}`
 const info = (id: number) => (monsters as Record<string, { image: string } | undefined>)[id]
 
 /** Efficiency 50% -> red, 100% -> green. */
@@ -40,7 +42,11 @@ function Card({ s, by }: { s: UnitSummary; by: ColorBy }) {
     <article className={`rounded-xl border p-3 ${hasReplace ? 'border-orange-500/70 bg-orange-950/20' : 'border-slate-800 bg-slate-900'}`}>
       <header className="mb-2 flex items-center gap-3">
         {img
-          ? <img src={IMG + img} alt="" loading="lazy" className="size-10 rounded-full" />
+          ? <img src={localIcon(img)} alt="" loading="lazy" className="size-10 rounded-full"
+              onError={(e) => {
+                const el = e.currentTarget
+                if (!el.src.startsWith(REMOTE_IMG)) el.src = REMOTE_IMG + img
+              }} />
           : <div className="grid size-10 place-items-center rounded-full bg-slate-800 text-sm">{name.replace('Monster #', '#').slice(0, 2)}</div>}
         <div className="min-w-0 flex-1">
           <div className="truncate font-medium">{name}</div>
