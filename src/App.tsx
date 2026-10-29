@@ -4,6 +4,7 @@ import { Dashboard } from './features/dashboard/Dashboard'
 import { RuneTable } from './features/runes/RuneTable'
 import { Cleanup } from './features/cleanup/Cleanup'
 import { Monsters } from './features/monsters/Monsters'
+import { Compare } from './features/compare/Compare'
 import { Importer } from './features/import/Importer'
 import { useAppStore } from './store/useAppStore'
 
@@ -46,7 +47,7 @@ export default function App() {
             <Route path="/runes" element={<RuneTable />} />
             <Route path="/cleanup" element={<Cleanup />} />
             <Route path="/monsters" element={<Monsters />} />
-            <Route path="/compare" element={<Soon name="Compare" />} />
+            <Route path="/compare" element={<Compare />} />
             <Route path="/rules" element={<Soon name="Rules" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
