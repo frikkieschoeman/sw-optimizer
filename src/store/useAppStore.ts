@@ -19,6 +19,7 @@ interface AppState {
   importText: (text: string) => Promise<void>
   setStage: (s: Stage) => void
   setStrictness: (s: Strictness) => void
+  setTotem: (pct: number) => void
 }
 
 function compute(account: Account | null, stage: Stage, strictness: Strictness) {
@@ -71,6 +72,10 @@ export const useAppStore = create<AppState>((set, get) => {
 
     setStage(stage) {
       set({ stage, analysis: compute(get().account, stage, get().strictness) })
+      persist()
+    },
+    setTotem(pct) {
+      set({ totemSpdPct: Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0)) })
       persist()
     },
     setStrictness(strictness) {
