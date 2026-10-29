@@ -64,8 +64,11 @@ bestiary. Until it is filled, monsters show as "Monster #id". To fetch or refres
 npm run fetch-monsters
 ```
 
-This needs network access to `swarfarm.com`. Commit the generated file; the app then needs no
-network for names. Images are loaded from SWARFARM when online.
+This also downloads every icon, resized to 64x64 WebP (about 3 MB in total, 1.3 KB each, needs
+ImageMagick's `convert`), into `public/monsters/`. It needs network access to `swarfarm.com`.
+Commit the generated files; the app then needs no network for names or images. Icons that are
+missing locally fall back to SWARFARM when online. Use `npm run fetch-monsters -- --data` to
+refresh only the names.
 
 ## Layout
 
