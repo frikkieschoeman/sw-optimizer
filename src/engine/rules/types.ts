@@ -14,6 +14,33 @@ export interface RoleRule {
 
 export type StatMap = Partial<Record<Stat, number>>
 
+/** Forge Score weights (reference/sw-forge-guide.md section 6). */
+export interface ForgeWeights {
+  /** Points for a %/SPD/CRate/CDmg/RES/ACC main stat. */
+  mainTier: StatMap
+  /** Flat HP/ATK/DEF main on slots 1/3/5. */
+  flatOddMain: number
+  /** Flat HP/ATK/DEF main on slots 2/4/6 (not in the guide). */
+  flatEvenMain: number
+  /** Points for a sub at quality 1 (five max rolls), before subWeight. */
+  subTier: Record<Stat, number>
+  /** Scales every sub and the innate (not in the guide; 1 = literal reading). */
+  subWeight: number
+  /** Roll quality = (roll + grind) / effMax, capped here. */
+  qualityCap: number
+  innateMul: number
+  /** Flat subs on slots 2/4/6. */
+  evenFlatSubMul: number
+  /** Main/sub pair not in the synergy table, slots 2/4/6. */
+  unlistedEvenSyn: number
+  /** Per overlap of the same base stat across main, innate and subs. */
+  dupPenalty: number
+  /** Golden triplet: three stats from one archetype. */
+  goldenMul: number
+  /** raw / divisor x 100 = Score. */
+  divisor: number
+}
+
 export interface RulesConfig {
   /** Maximum value of a single 6* roll, per stat. */
   rollMax: Record<Stat, number>
@@ -72,6 +99,8 @@ export interface RulesConfig {
     allowOddSlots: boolean
     legendOnly: boolean
   }
+
+  forge: ForgeWeights
 
   /** Gem check ignores flat subs on runes that already have a gemmed sub. */
   gem: { enabled: boolean }

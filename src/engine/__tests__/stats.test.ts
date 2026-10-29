@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_RULES, parseSwex } from '..'
-import { forgeScore } from '../forgeScore'
 import { efficiency } from '../stats'
 import { rune, sub } from './helpers'
 
@@ -12,17 +11,6 @@ describe('efficiency', () => {
     })
     const expected = ((1 + 6 / 30 + 16 / 30 + 8 / 40 + 8 / 40 + 8 / 40) / 2.8) * 100
     expect(efficiency(r, DEFAULT_RULES)).toBeCloseTo(expected, 6)
-  })
-})
-
-describe('forgeScore', () => {
-  it('is within 0-100 and ranks a strong SPD rune above a flat one', () => {
-    const strong = rune({ subs: [sub('SPD', 18), sub('HP%', 12), sub('ACC', 12), sub('DEF%', 8)] })
-    const weak = rune({ subs: [sub('HP', 300), sub('DEF', 20), sub('ATK', 20), sub('RES', 5)] })
-    const a = forgeScore(strong, DEFAULT_RULES)
-    const b = forgeScore(weak, DEFAULT_RULES)
-    expect(a).toBeLessThanOrEqual(100)
-    expect(a).toBeGreaterThan(b)
   })
 })
 

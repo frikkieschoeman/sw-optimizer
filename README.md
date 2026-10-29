@@ -44,8 +44,10 @@ const { results, progression } = analyze(account, buildRules('Mid', 4))
 
 `buildRules('Mid', 4)` is a line-for-line port of `reference/verdict.py`. Other stages and
 strictness levels move the same knobs (line strength, stat-strength bar, minimum lines, relaxed
-retry). The Forge Score follows the guide, but the guide doesn't give the scale of the
-substat points, so those weights are calibrated (see `src/engine/forgeScore.ts`).
+retry). The Forge Score follows the guide. Where the guide is silent (roll quality is
+value / five max rolls, sub weight 1, flat main on slots 2/4/6) the readings are
+listed in `src/engine/forgeScore.ts`, and every weight can be tuned on the Rules
+page. Forge weights are kept when you change Stage or Strictness.
 
 Check the port against the Python reference on your own export:
 
