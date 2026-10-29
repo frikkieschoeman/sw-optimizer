@@ -5,6 +5,7 @@ import { RuneTable } from './features/runes/RuneTable'
 import { Cleanup } from './features/cleanup/Cleanup'
 import { Monsters } from './features/monsters/Monsters'
 import { Compare } from './features/compare/Compare'
+import { Rules } from './features/rules/Rules'
 import { Importer } from './features/import/Importer'
 import { useAppStore } from './store/useAppStore'
 
@@ -13,7 +14,6 @@ const NAV = [
   ['/monsters', 'Monsters'], ['/compare', 'Compare'], ['/rules', 'Rules'],
 ] as const
 
-const Soon = ({ name }: { name: string }) => <p className="text-slate-400">{name} is coming in the next steps.</p>
 
 export default function App() {
   const { ready, account, init } = useAppStore()
@@ -48,7 +48,7 @@ export default function App() {
             <Route path="/cleanup" element={<Cleanup />} />
             <Route path="/monsters" element={<Monsters />} />
             <Route path="/compare" element={<Compare />} />
-            <Route path="/rules" element={<Soon name="Rules" />} />
+            <Route path="/rules" element={<Rules />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )}

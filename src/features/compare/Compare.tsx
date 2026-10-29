@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import {
-  VERDICTS, analyze, buildRules, compareSnapshots, parseSwex, verdictCounts,
+  VERDICTS, analyze, compareSnapshots, parseSwex, verdictCounts,
   type DeltaRow, type Snapshot,
 } from '../../engine'
 import { loadExport, saveExport } from '../../store/db'
-import { useAppStore } from '../../store/useAppStore'
+import { effectiveRules, useAppStore } from '../../store/useAppStore'
 
 type Side = 'before' | 'after'
 const SLOT: Record<Side, number> = { before: 2, after: 3 }
@@ -69,7 +69,7 @@ function Slot({ side, snap, name, onText }: { side: Side; snap?: Snapshot; name?
 }
 
 export function Compare() {
-  const { stage, strictness } = useAppStore()
+  const { stage, strictness, customRules } = useAppStore()
   const [raw, setRaw] = useState<Partial<Record<Side, { account: ReturnType<typeof parseSwex>; name?: string }>>>({})
   const [error, setError] = useState<string | null>(null)
 
@@ -94,13 +94,13 @@ export function Compare() {
 
   // both sides are judged with the same Stage and Strictness
   const snaps = useMemo(() => {
-    const rules = buildRules(stage, strictness)
+    const rules = effectiveRules({ stage, strictness, customRules })
     const make = (side: Side): Snapshot | undefined => {
       const a = raw[side]?.account
       return a ? { account: a, analysis: analyze(a, rules) } : undefined
     }
     return { before: make('before'), after: make('after') }
-  }, [raw, stage, strictness])
+  }, [raw, stage, strictness, customRules])
 
   const cmp = useMemo(
     () => (snaps.before && snaps.after ? compareSnapshots(snaps.before, snaps.after) : null),
@@ -120,7 +120,7 @@ export function Compare() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-400">
-        Load an export from before and after a cleanup session. Both are judged with the current Stage ({stage}) and Strictness ({strictness}), so the changes come from your runes, not the rules.
+        Load an export from before and after a cleanup session. Both are judged with the current rules ({customRules ? 'custom' : `${stage}, strictness ${strictness}`}), so the changes come from your runes, not the rules.
       </p>
       <div className="flex flex-wrap gap-4">
         {(['before', 'after'] as Side[]).map((side) => (

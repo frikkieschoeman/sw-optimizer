@@ -1,5 +1,5 @@
 import { del, get, set } from 'idb-keyval'
-import type { Stage, Strictness } from '../engine'
+import type { RulesConfig, Stage, Strictness } from '../engine'
 
 /** Everything stays in this browser's IndexedDB. Nothing is uploaded. */
 export interface Settings {
@@ -32,3 +32,8 @@ export const loadSettings = async (): Promise<Settings> =>
 const doneKey = (wizardId: number) => `cleanup-done:${wizardId}`
 export const saveDone = (wizardId: number, ids: number[]) => safe(() => set(doneKey(wizardId), ids), undefined)
 export const loadDone = (wizardId: number) => safe(() => get<number[]>(doneKey(wizardId)), undefined)
+
+/** Custom rules saved from the Rules page. Absent means "use the Stage/Strictness preset". */
+export const saveRules = (r: RulesConfig) => safe(() => set('rules', r), undefined)
+export const loadRules = () => safe(() => get<RulesConfig>('rules'), undefined)
+export const clearRules = () => safe(() => del('rules'), undefined)
